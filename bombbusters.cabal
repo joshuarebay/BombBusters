@@ -1,0 +1,66 @@
+cabal-version:      3.0
+name:               bombbusters
+version:            0.1.0.0
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Joshua Rebay
+maintainer:         joshuarebay@icloud.com
+category:           Game
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    hs-source-dirs:   src
+    exposed-modules:
+        Config
+        InitGame
+        Types
+        GameLoop
+        GameLogic.Actions
+        GameLogic.Core
+        GameLogic.Display
+        GameLogic.Input
+        GameLogic.Util
+        GameLogic.Equipment
+        BotLogic.Interface
+        BotLogic.BotTypes
+        BotLogic.Strategies
+        BotLogic.KnowledgeBase
+        BotLogic.ConstraintSolver
+        BotLogic.Inference
+        BenchmarkLog
+    build-depends:
+        base ^>=4.20.0.0,
+        mtl,
+        random,
+        random-shuffle,
+        containers,
+        pretty-simple,
+        sbv,
+        ansi-terminal,
+        aeson,
+        bytestring,
+        time,
+        directory,
+        filepath
+    default-language: Haskell2010
+
+executable bombbusters
+    import:           warnings
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    build-depends:
+        base,
+        bombbusters,
+        hspec,
+        random,
+        random-shuffle,
+        containers,
+        pretty-simple,
+        mtl
+    default-language: Haskell2010
+

@@ -1,0 +1,8 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:bombbusters"
+
+    - path: "./app"
+      component: "exe:bombbusters"
+
