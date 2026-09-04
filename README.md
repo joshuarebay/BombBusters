@@ -19,15 +19,22 @@ This implementation plays a 4-player game. Any seat can be assigned to a bot at 
 
 ## How to Play
 
+For a complete understanding of the game rules, please refer to the [official rulebook](https://www.cocktailgames.com/wp-content/uploads/2023/10/BombBusters_rules_EN.pdf).
+
 ### The turn
 
 On your turn you pick one of the available actions:
 
-- **Solo Cut** - cut wires from your own rack whose value is provable: all four copies of a blue value if you hold them, two blues of the same value once at least one copy of that value has been cut elsewhere, or any two yellow wires (yellows have no distinct value in play, so any pair matches).
-- **Dual Cut** - name one of your own wires (color + value) and point at a wire on another player's rack. If they match, both are cut. If not, the detonator advances.
+- **Solo Cut** - cut wires from your own rack: all four
+  copies of a blue value if you hold them, two blues of the same value if all other copies of that value have been cut elsewhere, or all remaining yellow wires
+- **Dual Cut** - name one of your own wires (color + value) and point at a wire
+  on another player's rack. If they match, both are cut. If not, the detonator
+  advances. Be careful not to hit a red wire! The bomb will explode immediately and the game will end.
 - **Remove Reds** - once every wire left on your rack is red, you can safely set them all aside.
 
-Before cutting starts, the game runs a setup pass in which every player, on their first turn, places one **Info Marker** on one of their own wires. This publicly reveals that wire's value and gives the team something to deduce from.
+Before cutting starts, the game runs a setup pass in which every player, on
+their first turn, places one **Info Marker** on one of their own wires. This
+publicly reveals that wire's value and gives the team something to deduce from.
 
 ### Equipment
 
@@ -42,12 +49,15 @@ Each player also starts with a personal **Double Detector**: name one of your va
 
 ### Winning and losing
 
-- **Win**: every non-red wire has been cut.
-- **Lose**: the detonator reaches 0, or any red wire is cut.
+- **Win**: every wire has been cut.
+- **Lose**: the detonator reaches 0, or any red wire is cut with an action other than **Remove Reds**.
 
 ### Terminal controls
 
-The game runs in the terminal. At the start you're asked which of the four seats should be played by bots; the rest are yours. During a turn you'll see your rack, the other players' racks (colors only), the detonator, cut history, info markers, and available equipment.
+The game runs in the terminal. At the start you're asked which of the four
+seats should be played by bots; the rest are yours. During a turn you'll see
+your rack, the other players' racks (colors only), the detonator, cut history,
+info markers, and available equipment.
 
 - Numbered menus: type the number and press Enter.
 - Wire slots are labelled `a`, `b`, `c`, … - type the single letter and press Enter.
@@ -55,7 +65,10 @@ The game runs in the terminal. At the start you're asked which of the four seats
 
 ## Installation
 
-You need [GHC](https://www.haskell.org/ghc/) and [Cabal](https://www.haskell.org/cabal/) (GHC 9.10 / `base` 4.20). The bot uses [SBV](https://hackage.haskell.org/package/sbv), which in turn requires an SMT solver on your `PATH` - [Z3](https://github.com/Z3Prover/z3) is the recommended choice.
+You need [GHC](https://www.haskell.org/ghc/) and
+[Cabal](https://www.haskell.org/cabal/) (GHC 9.10 / `base` 4.20). The bot uses
+[SBV](https://hackage.haskell.org/package/sbv), which in turn requires an SMT
+solver - [Z3](https://github.com/Z3Prover/z3) this project uses z3.
 
 ```sh
 # Arch
@@ -70,7 +83,7 @@ Then, from the project root:
 
 ```sh
 cabal build
-cabal run bombbusters
+cabal run 
 ```
 
 ## Configuration
@@ -91,7 +104,6 @@ A few knobs are exposed via environment variables (see `src/Config.hs`):
 - `app/Main.hs` - entry point.
 - `src/GameLogic/` - core rules, actions, display, and input handling.
 - `src/BotLogic/` - knowledge base, SMT constraint solver, strategies, and epistemic inference.
-- `benchmarks/` - sweep and analysis scripts used for the thesis experiments.
 
 ## License
 
