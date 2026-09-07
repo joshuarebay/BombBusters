@@ -5,7 +5,7 @@ import Data.Time.Clock (getCurrentTime)
 import BenchmarkLog (writeGameLog)
 import GameLogic.Actions (handleAction)
 import GameLogic.Core
-import GameLogic.Display (displayPlayerView, displayTurnResult, displayBotDecision)
+import GameLogic.Display (displayPlayerView, displayTurnResult, displayBotDecision, announceHumanTurn)
 import GameLogic.Input (handlePlaceInfoMarker, handleChooseBots)
 import GameLogic.Util
 import BotLogic.Interface
@@ -50,7 +50,7 @@ gameLoop = do
               let a = botPlaceMarker pv
               liftIO $ displayBotDecision (Just (toPublicAction a)) []
               pure a
-            else liftIO $ handlePlaceInfoMarker pv
+            else liftIO $ announceHumanTurn pv >> handlePlaceInfoMarker pv
           _ <- handleAction pv act id
           pure ()
         else do

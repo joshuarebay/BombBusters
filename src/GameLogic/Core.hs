@@ -3,7 +3,7 @@ module GameLogic.Core where
 import Control.Monad.State
 import Config (bbDelay)
 import GameLogic.Actions
-import GameLogic.Display (displayPlayerView, displayBotDecision)
+import GameLogic.Display (displayPlayerView, displayBotDecision, announceHumanTurn)
 import GameLogic.Equipment
 import GameLogic.Input
 import GameLogic.Util
@@ -22,7 +22,7 @@ playerTurn pv = do
       let (pubA, pubEq) = pubOf a eq
       displayBotDecision pubA pubEq
       return result
-    else humanAction pv
+    else announceHumanTurn pv >> humanAction pv
   let f = handleStabilizer equip
   eqOutcome <- handleEquipment f pv equip
   actOutcome <- case act of

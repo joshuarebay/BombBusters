@@ -1,4 +1,4 @@
-module GameLogic.Display (displayPlayerView, displayWirePickView, displayInfoMarkerView, displayTurnResult, displayBotDecision, indexToLabel) where
+module GameLogic.Display (displayPlayerView, displayWirePickView, displayInfoMarkerView, displayTurnResult, displayBotDecision, announceHumanTurn, indexToLabel) where
 
 import Control.Monad (unless, when)
 import Data.List (intercalate)
@@ -18,11 +18,15 @@ displayPlayerView pv = do
       allInfos = pvInfoMarkers pv
       others = pvOthers pv
       botStatus = isBot self
+      hasHumanOnlooker = any (not . isBot) others
+      displaySelf
+        | botStatus && hasHumanOnlooker = censorPlayerWires self
+        | otherwise = self
 
   bbClearScreen
 
   putStrLn "\n============================================="
-  putStrLn $ "PLAYER " ++ show pid ++ " isBot: " ++ show botStatus ++ " — Detonator: " ++ show det
+  putStrLn $ "PLAYER " ++ show pid ++ " isBot: " ++ show botStatus ++ " - Detonator: " ++ show det
   putStrLn "============================================="
   putStrLn $
     "Color Markers: "
@@ -31,7 +35,7 @@ displayPlayerView pv = do
   putStrLn "---------------------------------------------"
   putStrLn "YOUR RACK"
   putStrLn "---------------------------------------------"
-  printRack self allInfos
+  printRack displaySelf allInfos
   putStrLn "   ⬜ = Hidden   💡 = Info   ⚫ = Cut"
 
   unless (null others) $ do
@@ -128,6 +132,24 @@ displayInfoMarkerView pv = do
     mapM_ (`printRackLabeled` allInfos) others
   putStrLn "   ⬜ = Hidden   💡 = Info   ⚫ = Cut"
   putStrLn "---------------------------------------------"
+
+announceHumanTurn :: PlayerView -> IO ()
+announceHumanTurn pv = do
+  let self = pvSelf pv
+      multiHuman = any (not . isBot) (pvOthers pv)
+  when (not (isBot self) && multiHuman) $ do
+    bbClearScreen
+    putStrLn "\n============================================="
+    putStrLn $ "  Player " ++ show (playerId self) ++ " (" ++ playerName self ++ ") - it's your turn!"
+    putStrLn "============================================="
+    bbDelay 3000000
+
+censorPlayerWires :: Player -> Player
+censorPlayerWires p = p { playerWires = map hide (playerWires p) }
+  where
+    hide w
+      | color w == Grey = w
+      | otherwise = w { color = Hidden, value = -1 }
 
 printRack :: Player -> [InfoMarker] -> IO ()
 printRack pl infos = do

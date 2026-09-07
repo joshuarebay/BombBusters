@@ -166,11 +166,14 @@ selectLoop remaining selected = do
     then pure selected
     else do
       let indexed = zip [1 .. length allowed] allowed
+          canFinish = not (null selected)
       mapM_
         (\(i, s) -> putStrLn (show i ++ " | " ++ showSelectable s))
         indexed
+      when canFinish $ putStrLn "0 | Done (proceed with selected equipment)"
       input <- readIntB "Enter number:"
       case input of
+        0 | canFinish -> pure selected
         n
           | n >= 1 && n <= length allowed -> do
               let eq = allowed !! (n - 1)
@@ -202,18 +205,27 @@ isExclusive (SelectEquipment e) = name e /= Stabilizer
 isExclusive SelectDoubleDetector = True
 
 canSoloCut :: PlayerView -> Bool
-canSoloCut pv =
+canSoloCut pv = canSoloCut2 pv || canSoloCut4 pv
+
+canSoloCut2 :: PlayerView -> Bool
+canSoloCut2 pv =
   let ws = filter (\w -> color w /= Grey) (playerWires (pvSelf pv))
       countMatching c v = length (filter (\w -> color w == c && value w == v) ws)
       keys = nub [ (color w, value w) | w <- ws ]
-      sc4 = any (\(c, v) -> countMatching c v >= 4) keys
       yellowPair = length (filter ((== Yellow) . color) ws) >= 2
       cutHist = pvCutWires pv
       hasHistory c v = any (\mw -> color (wire mw) == c && value (wire mw) == v) cutHist
       sc2Match = any
         (\(c, v) -> c /= Yellow && c /= Red && countMatching c v >= 2 && hasHistory c v)
         keys
-   in sc4 || yellowPair || sc2Match
+   in yellowPair || sc2Match
+
+canSoloCut4 :: PlayerView -> Bool
+canSoloCut4 pv =
+  let ws = filter (\w -> color w /= Grey) (playerWires (pvSelf pv))
+      countMatching c v = length (filter (\w -> color w == c && value w == v) ws)
+      keys = nub [ (color w, value w) | w <- ws ]
+   in any (\(c, v) -> countMatching c v >= 4) keys
 
 canDualCut :: PlayerView -> Bool
 canDualCut pv =
@@ -513,7 +525,12 @@ checkInputDD pv otherId selfPos (a, b) =
 handleSoloCutInput :: PlayerView -> IO Action
 handleSoloCutInput pv = do
   displayWirePickView pv Nothing
-  count <- readIntB "Solo Cut - cut two (2) or four (4) wires? Enter 2 or 4:"
+  let c2 = canSoloCut2 pv
+      c4 = canSoloCut4 pv
+  count <- case (c2, c4) of
+    (True, False) -> putStrLn "Solo Cut - cutting two (2) wires." >> pure 2
+    (False, True) -> putStrLn "Solo Cut - cutting four (4) wires." >> pure 4
+    _             -> readIntB "Solo Cut - cut two (2) or four (4) wires? Enter 2 or 4:"
   case count of
     2 -> do
       a <- readLabelB "First wire:"
